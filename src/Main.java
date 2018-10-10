@@ -53,6 +53,10 @@ class RPGCharacter{
         System.out.println("Confused!!!");
     }
 
+    public void fired(){
+        System.out.println("Firedd!!!");
+    }
+
     public void decreaseHealth(int loss){
         health -= loss;
         System.out.println("loss HP!!!");
@@ -85,6 +89,16 @@ class Confuse extends AttackDecorator{
     }
     public void attack(RPGCharacter attacker, RPGCharacter defender){
         defender.confuse();
+        super.attack(attacker, defender);
+    }
+}
+
+class FireAttack extends AttackDecorator{
+    FireAttack(Attack _action){
+        super(_action);
+    }
+    public void attack(RPGCharacter attacker, RPGCharacter defender){
+        defender.fired();
         super.attack(attacker, defender);
     }
 }
@@ -209,7 +223,7 @@ public class Main {
 
         //traditional decorator patter begin
         System.out.println("*****************traditional decorator patter begin!!!*****************");
-        Attack atk = new Confuse(new PhysicalAttack());
+        Attack atk = new FireAttack(new Confuse(new PhysicalAttack()));
         atk.attack(new RPGCharacter(100, 200), new RPGCharacter(50, 300));
         //traditional decorator patter end
 
