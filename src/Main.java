@@ -1,3 +1,7 @@
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.Stack;
 //adaptor pattern begin
 //The adaptor pattern converts the interface of a class into another interface client expect, and lets
 //classes work together that couldn't otherwise because of incompatible interfaces.
@@ -211,6 +215,210 @@ class IntContainer implements Container{
 }
 //iterator pattern end
 
+//memento pattern begin
+class Originator{
+    private String state;
+    public void setState(String state){
+        this.state = state;
+    }
+
+    public Memento saveToMemento(){
+        return new Memento(this.state);
+    }
+
+    public void restoreFromMemento(Memento memento){
+        this.state = memento.getSavedState();
+        System.out.println(this.state);
+    }
+
+    public static class Memento{
+        private final String state;
+        public Memento(String stateToSave){
+            state = stateToSave;
+        }
+        private String getSavedState(){
+            return state;
+        }
+    }
+}
+
+class Caretaker{
+
+
+}
+//memento pattern end
+
+//command pattern start
+interface  IEditor{
+    void save();
+    void open();
+    void close();
+}
+
+class Editor implements  IEditor{
+    public void save(){
+        System.out.println("saved!!!!!");
+    }
+    public void close(){
+        System.out.println("closed!!!!!");
+    }
+    public void open(){
+        System.out.println("opened!!!!!");
+    }
+}
+
+interface Action{
+    void perform();
+}
+
+
+class Save implements Action{
+    private final Editor editor;
+    Save(Editor editor){
+        this.editor = editor;
+    }
+    public void perform(){
+        editor.save();
+    }
+}
+
+class ActionDriver{
+    private List<Action> actions;
+    ActionDriver(){
+        actions = new ArrayList<Action>();
+    }
+    public void addAction(Action act){
+        actions.add(act);
+    }
+    public void run(){
+        actions.forEach(Action::perform);
+    }
+}
+
+class Folder {
+    protected List<Folder> subFolders;
+    protected String name;
+
+    public Folder(String _name) {
+        name = _name;
+        subFolders = new ArrayList<>();
+    }
+
+    public void setName(String _name) {
+        name = _name;
+    }
+
+    public void addSubFolder(Folder child) {
+        subFolders.add(child);
+    }
+
+    public String getName() { return name; }
+    public void remove(Folder child) { subFolders.remove(child); }
+    public List<Folder> getSubFolders() { return subFolders; }
+}
+
+abstract class FolderCommand {
+    private static void printFolders(List<Folder> children) {
+        children.forEach((f) -> {
+            System.out.print(f.getName() + ' ');
+        });
+        System.out.println();
+    }
+    Folder fldr;
+    public FolderCommand(Folder _fldr) {
+        fldr = _fldr;
+    }
+    static Scanner stdin = new Scanner(System.in);
+    static Stack<FolderCommand> hist = new Stack<>();
+    abstract public void update();
+    abstract public void undo();
+
+    public static void main(String[] args) {
+        Folder f = new Folder("tmp");
+        FolderCommand cmd = new RenameCmd(f);
+        cmd.update();
+        System.out.println(f.getName());
+        hist.pop().undo();
+        System.out.println(f.getName());
+        cmd = new AddCmd(f);
+        cmd.update();
+        List<Folder> children = f.getSubFolders();
+        printFolders(children);
+        cmd.update();
+        children = f.getSubFolders();
+        printFolders(children);
+        hist.pop().undo();
+        children = f.getSubFolders();
+        printFolders(children);
+    }
+}
+
+class AddCmd extends FolderCommand {
+    private Folder newFolder;
+
+    public AddCmd(Folder _fldr) {
+        super(_fldr);
+        newFolder = null;
+    }
+
+    @Override
+    public void update() {
+        System.out.print("Enter the name of the folder to add: ");
+        newFolder = new Folder(stdin.next());
+        fldr.addSubFolder(newFolder);
+        hist.push(this);
+    }
+
+    @Override
+    public void undo() {
+        fldr.remove(newFolder);
+    }
+
+}
+
+class RenameCmd extends FolderCommand {
+    String prevName = null;
+
+    public RenameCmd(Folder _fldr) {
+        super(_fldr);
+    }
+
+    @Override
+    public void update() {
+        prevName = fldr.getName();
+        System.out.print("Enter the new name for this folder: ");
+        fldr.setName(stdin.next());
+        hist.push(this);
+    }
+
+    @Override
+    public void undo() {
+        fldr.setName(prevName);
+    }
+
+}
+
+class UndoCmd extends FolderCommand {
+
+    public UndoCmd(Folder _fldr) {
+        super(_fldr);
+    }
+
+    @Override
+    public void update() {
+        while (!hist.empty()) {
+            hist.pop().undo();
+        }
+    }
+
+    @Override
+    public void undo() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+}
+
+//command pattern end
 public class Main {
     public static void main(String[] args) {
 
@@ -253,5 +461,25 @@ public class Main {
             System.out.println(it.next());
         }
         //iterator pattern end
+
+        //memento pattern begin
+        System.out.println("*****************memento pattern begin!!!*****************");
+        List<Originator.Memento> savedStates = new ArrayList<Originator.Memento>();
+        Originator ori = new Originator();
+        ori.setState("state1");
+        savedStates.add(ori.saveToMemento());
+        ori.setState("state2");
+        savedStates.add(ori.saveToMemento());
+        ori.restoreFromMemento(savedStates.get(0));
+        //memento pattern end
+
+        //command pattern begin
+        System.out.println("*****************command pattern begin!!!*****************");
+        ActionDriver actDriver = new ActionDriver();
+        Editor editor = new Editor();
+        actDriver.addAction(new Save(editor));
+        actDriver.addAction(()->editor.close());
+        actDriver.run();
+        //command pattern end
     }
 }
