@@ -373,7 +373,6 @@ class AddCmd extends FolderCommand {
     public void undo() {
         fldr.remove(newFolder);
     }
-
 }
 
 class RenameCmd extends FolderCommand {
@@ -395,7 +394,6 @@ class RenameCmd extends FolderCommand {
     public void undo() {
         fldr.setName(prevName);
     }
-
 }
 
 class UndoCmd extends FolderCommand {
@@ -417,8 +415,62 @@ class UndoCmd extends FolderCommand {
     }
 
 }
-
 //command pattern end
+
+//state pattern begin
+enum StateAB{
+    OK{
+         StateAB gotA(){
+            return OK;
+        }
+         StateAB gotB(){
+            return BAD;
+        }
+    },
+    A{
+        StateAB gotA(){
+            return BAD;
+        }
+        StateAB gotB(){
+            return OK;
+        }
+    },
+    BAD{
+        StateAB gotA(){
+            return BAD;
+        }
+        StateAB gotB(){
+            return OK;
+        }
+    };
+    abstract StateAB gotA();
+    abstract StateAB gotB();
+}
+
+class AlternatingAB {
+    StateAB state;
+    boolean process(String txt) {
+        state = StateAB.OK;
+        for (char ch : txt.toCharArray()) {
+            if (ch == 'a')
+                state = state.gotA();
+            else if (ch == 'b')
+                state = state.gotB();
+            else throw new Error ("only a's and b's");
+        }
+        return state.equals(StateAB.OK);
+    }
+
+    public static void main(String[] args) {
+        AlternatingAB ab = new AlternatingAB();
+        System.out.println(ab.process(""));
+        System.out.println(ab.process("a"));
+        System.out.println(ab.process("abab"));
+        System.out.println(ab.process("abbab"));
+    }
+
+}
+//state pattern end
 public class Main {
     public static void main(String[] args) {
 
