@@ -243,8 +243,6 @@ class Originator{
 }
 
 class Caretaker{
-
-
 }
 //memento pattern end
 
