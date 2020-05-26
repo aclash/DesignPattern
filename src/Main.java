@@ -269,7 +269,6 @@ interface Action{
     void perform();
 }
 
-
 class Save implements Action{
     private final Editor editor;
     Save(Editor editor){
@@ -469,6 +468,13 @@ class AlternatingAB {
 
 }
 //state pattern end
+
+//builder pattern begin
+class NutritionFacts{
+
+}
+//builder pattern end
+
 public class Main {
     public static void main(String[] args) {
 
@@ -531,5 +537,10 @@ public class Main {
         actDriver.addAction(()->editor.close());
         actDriver.run();
         //command pattern end
+
+        //builder pattern begin
+
+        //builder pattern end
+
     }
 }
