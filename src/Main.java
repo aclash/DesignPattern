@@ -1,7 +1,4 @@
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Scanner;
-import java.util.Stack;
+import java.util.*;
 //adaptor pattern begin
 //The adaptor pattern converts the interface of a class into another interface client expect, and lets
 //classes work together that couldn't otherwise because of incompatible interfaces.
@@ -465,13 +462,60 @@ class AlternatingAB {
         System.out.println(ab.process("abab"));
         System.out.println(ab.process("abbab"));
     }
-
 }
 //state pattern end
 
 //builder pattern begin
 class NutritionFacts{
+    private final int servingSize;
+    private final int servings;
+    private final int calories;
+    private final int fat;
+    private final int sodium;
+    private final int carbohydrate;
+    public static class Builder{
+        //required field
+        private final int servingSize;
+        private final int servings;
+        //optional field
+        private int calories = 0;
+        private int fat = 0;
+        private int sodium = 0;
+        private int carbohydrate = 0;
+        public Builder(int servingSize, int servings){
+            this.servingSize = servingSize;
+            this.servings = servings;
+        }
+        public Builder calories(int val){
+            calories = val; return this;
+        }
+        public Builder fat(int val){
+            fat = val; return this;
+        }
+        public Builder sodium(int val){
+            sodium = val; return this;
+        }
+        public Builder carbohydrate(int val){
+            carbohydrate = val; return this;
+        }
+        public NutritionFacts build(){
+            return new NutritionFacts(this);
+        }
+    }
 
+    private NutritionFacts(Builder builder){
+        servingSize = builder.servingSize;
+        servings = builder.servings;
+        calories = builder.calories;
+        fat = builder.fat;
+        sodium = builder.sodium;
+        carbohydrate = builder.carbohydrate;
+    }
+}
+
+abstract class Pizza{
+    public enum Topping {HAM, MUSHROOM, SAUSAGE, PEPPER, ONION}
+    //final Set<Topping> toppings;
 }
 //builder pattern end
 
@@ -539,7 +583,9 @@ public class Main {
         //command pattern end
 
         //builder pattern begin
-
+        NutritionFacts.Builder bldr = new NutritionFacts.Builder(240, 8);
+        NutritionFacts cocaCola = bldr.calories(100).sodium(35).carbohydrate(27).build();
+        //NutritionFacts cocaCola = new NutritionFacts.Builder(240, 8).calories(100).sodium(35).carbohydrate(27).build();
         //builder pattern end
 
     }
